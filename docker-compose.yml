@@ -1,0 +1,44 @@
+# docker compose up --build
+# Backend :8000 | UI :8501 | MLflow :5000 | Prometheus :9090 | Grafana :3000 (admin/admin)
+x-app: &app
+  build: .
+  env_file: [.env]
+  volumes:
+    - ./data:/app/data            # documents, index, logs live on your machine
+    - ./mlflow.db:/app/mlflow.db  # same MLflow database as local runs
+    - ./mlruns:/app/mlruns
+
+services:
+  api:
+    <<: *app
+    ports: ["8000:8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      retries: 5
+
+  frontend:
+    <<: *app
+    command: streamlit run frontend/Employee_Assistant.py --server.port 8501 --server.address 0.0.0.0
+    environment: {API_URL: "http://api:8000"}
+    ports: ["8501:8501"]
+    depends_on: [api]
+
+  mlflow:
+    <<: *app
+    command: mlflow server --backend-store-uri sqlite:////app/mlflow.db --host 0.0.0.0 --port 5000
+    ports: ["5000:5000"]
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    volumes: ["./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro"]
+    ports: ["9090:9090"]
+    depends_on: [api]
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    ports: ["3000:3000"]
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on: [prometheus]

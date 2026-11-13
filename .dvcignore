@@ -1,0 +1,16 @@
+# Add patterns of files dvc should ignore, which could improve
+# the performance. Learn more at
+# https://dvc.org/doc/user-guide/dvcignore
+# Python cache (inside src/ragops, which is a pipeline dependency)
+__pycache__/
+*.pyc
+
+# OS and editor junk that can appear in data/raw
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+~$*
+
+# Notebook leftovers
+.ipynb_checkpoints/

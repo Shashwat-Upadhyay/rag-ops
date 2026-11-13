@@ -1,0 +1,33 @@
+schema: '2.0'
+stages:
+  build_index:
+    cmd: python -m ragops.pipeline
+    deps:
+    - path: configs/config.yaml
+      hash: md5
+      md5: df1c975cf8b4bff0d43bbe7bbfd06dc7
+      size: 1304
+    - path: data/eval/eval_set.json
+      hash: md5
+      md5: 176e8f63eb9710c62e60a7a355c89970
+      size: 1540
+    - path: data/raw
+      hash: md5
+      md5: 90c4b55c553c3224f7f2780196c4b704.dir
+      size: 3080
+      nfiles: 4
+    - path: src/ragops
+      hash: md5
+      md5: 28cd83a1fa79817a23f0d7caa9865ebb.dir
+      size: 23210
+      nfiles: 11
+    outs:
+    - path: data/index
+      hash: md5
+      md5: 14b063f6af935203f2ea4da4368d1cf8.dir
+      size: 27281
+      nfiles: 3
+    - path: data/metrics.json
+      hash: md5
+      md5: 9a27678d5f2af83385b4b9a562e0f2c7
+      size: 214

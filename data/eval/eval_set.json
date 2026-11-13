@@ -1,0 +1,14 @@
+[
+  {"question": "How many days of annual leave do I get?", "expected_source": "hr_leave_policy.md", "keywords": ["24", "annual leave"]},
+  {"question": "Can I carry forward unused leave?", "expected_source": "hr_leave_policy.md", "keywords": ["carried forward", "10"]},
+  {"question": "How long is paternity leave?", "expected_source": "hr_leave_policy.md", "keywords": ["paternity", "2 weeks"]},
+  {"question": "How do I reset my VPN token?", "expected_source": "it_vpn_troubleshooting.md", "keywords": ["vpn", "token"]},
+  {"question": "How often must passwords be changed?", "expected_source": "it_vpn_troubleshooting.md", "keywords": ["90 days", "password"]},
+  {"question": "What is the daily meal and transport reimbursement limit?", "expected_source": "finance_reimbursement.md", "keywords": ["5000", "per day"]},
+  {"question": "Within how many days should I submit an expense claim?", "expected_source": "finance_reimbursement.md", "keywords": ["30 days", "receipts"]},
+  {"question": "How long is the probation period?", "expected_source": "onboarding_guide.md", "keywords": ["6 months", "probation"]},
+  {"question": "What training must a new joiner complete?", "expected_source": "onboarding_guide.md", "keywords": ["security awareness", "30 days"]},
+  {"question": "What is the capital of Australia?", "expected_source": null, "keywords": []},
+  {"question": "Who won the cricket world cup?", "expected_source": null, "keywords": []},
+  {"question": "Recommend a good pizza recipe", "expected_source": null, "keywords": []}
+]

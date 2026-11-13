@@ -1,0 +1,40 @@
+seed: 42
+
+paths:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  candidates_dir: data/candidates
+  index_dir: data/index          # the "production" index served by the API
+  eval_set: data/eval/eval_set.json
+  registry: data/registry.json   # document name -> version, hash
+  query_log: data/logs/queries.jsonl
+  metrics_file: data/metrics.json
+
+mlflow:
+  tracking_uri: sqlite:///mlflow.db
+  experiment: ragops
+  model_name: ragops-retriever
+  alias: production
+
+llm:
+  model: gemini-2.5-flash        # used only if GEMINI_API_KEY is set
+  temperature: 0.0
+
+dense_model: BAAI/bge-small-en-v1.5
+
+# 1 baseline + 2 candidates. min_score = below this the assistant says "I don't know".
+experiments:
+  - {name: baseline_tfidf, retriever: tfidf,  chunk_size: 60, overlap: 15, top_k: 3, min_score: 0.10}
+  - {name: dense_bge,      retriever: dense,  chunk_size: 50, overlap: 10, top_k: 3, min_score: 0.55}
+  - {name: hybrid,         retriever: hybrid, chunk_size: 50, overlap: 10, top_k: 3, min_score: 0.35}
+
+# A model is promoted only if it passes these thresholds on the eval set.
+quality_gate:
+  min_hit_rate: 0.75
+  min_decision_accuracy: 0.70
+
+drift:
+  window: 50          # last N queries
+  min_samples: 10
+  score_drop: 0.30    # relative drop of mean top retrieval score
+  refusal_increase: 0.25

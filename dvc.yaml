@@ -1,0 +1,14 @@
+# `dvc repro` rebuilds the index only when documents, code or config changed.
+stages:
+  build_index:
+    cmd: python -m ragops.pipeline
+    deps:
+      - data/raw
+      - src/ragops
+      - configs/config.yaml
+      - data/eval/eval_set.json
+    outs:
+      - data/index
+    metrics:
+      - data/metrics.json:
+          cache: false

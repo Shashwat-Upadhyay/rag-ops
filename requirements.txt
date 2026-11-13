@@ -1,0 +1,15 @@
+# Pin exact versions with `pip freeze > requirements.lock` after your first successful install.
+numpy>=1.26,<3
+scikit-learn>=1.4
+joblib>=1.3
+pyyaml>=6.0
+pypdf>=4.0
+fastembed>=0.3          # dense embeddings (BAAI/bge-small-en-v1.5), small ONNX model, no PyTorch
+lime>=0.2.0.1           # explanations
+google-genai>=1.0       # optional LLM (Gemini)
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+pydantic>=2.6
+prometheus-client>=0.20
+mlflow>=2.14

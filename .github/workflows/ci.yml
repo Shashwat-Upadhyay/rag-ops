@@ -1,0 +1,31 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src:.
+      RAGOPS_EXPERIMENTS: baseline_tfidf     # CI skips the dense model download to stay fast
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+      - name: Build index + quality gate (fails the build if the model is not good enough)
+        run: python -m ragops.pipeline
+      - name: Unit + API integration tests
+        run: pytest -q
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Docker image build test
+        run: docker build -t ragops-api:ci .
+      - name: Compose file is valid
+        run: |
+          cp .env.example .env
+          docker compose config -q
