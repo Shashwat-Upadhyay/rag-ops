@@ -1,6 +1,6 @@
-"""Executive Dark Theme & Interactive UI Components for RAGOps.
-Inspired by Linear, Vercel, and Perplexity Pro: Clean, tactile, high data density,
-micro-interactions, and real-time observability.
+"""Aurora Command Theme & Interactive UI Components for RAGOps.
+A distinctive, high-end frontier interface combining executive elegance with
+tactile micro-interactions, animated telemetry, and real-time observability.
 """
 import os
 import sys
@@ -18,261 +18,318 @@ if os.path.exists(_LOCAL_CACHE) and _LOCAL_CACHE not in sys.path:
 
 
 def inject_executive_theme():
-    """Injects high-end, professional dark UI styling (Linear/Vercel inspired)."""
+    """Injects the Aurora Command design system (Syne, Space Grotesk, glassmorphic aurora)."""
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap');
 
-        /* Color Palette (Zinc / Obsidian / Electric Accents) */
+        /* ── Aurora Command Design Tokens ───────────────────────────────── */
         :root {
-            --bg-base: #09090b;
-            --bg-surface: #121217;
-            --bg-elevated: #18181f;
-            --border-subtle: rgba(255, 255, 255, 0.07);
-            --border-active: rgba(99, 102, 241, 0.35);
-            --accent-indigo: #6366f1;
-            --accent-violet: #8b5cf6;
+            --bg-base: #060608;
+            --bg-surface: #0c0c13;
+            --bg-elevated: #13131e;
+            --bg-overlay: rgba(18, 18, 28, 0.75);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(124, 58, 237, 0.45);
+            --border-aurora: linear-gradient(135deg, rgba(124, 58, 237, 0.5), rgba(0, 212, 255, 0.5));
+            --accent-violet: #7c3aed;
+            --accent-cyan: #00d4ff;
+            --accent-coral: #ff4d6d;
             --accent-emerald: #10b981;
             --accent-amber: #f59e0b;
-            --accent-rose: #f43f5e;
-            --accent-sky: #0ea5e9;
-            --text-primary: #f4f4f5;
-            --text-secondary: #a1a1aa;
-            --text-tertiary: #71717a;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-tertiary: #64748b;
         }
 
-        /* Base Application Layout */
+        /* ── Background & Ambient Lighting ──────────────────────────────── */
         .stApp {
             background-color: var(--bg-base);
             background-image:
-                radial-gradient(ellipse at 50% -20%, rgba(99, 102, 241, 0.12), transparent 50%),
-                radial-gradient(ellipse at 90% 100%, rgba(16, 185, 129, 0.05), transparent 40%),
-                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+                radial-gradient(circle at 18% 10%, rgba(124, 58, 237, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 82% 85%, rgba(0, 212, 255, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 92% 15%, rgba(255, 77, 109, 0.07) 0%, transparent 35%),
+                linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 36px 36px, 36px 36px;
             color: var(--text-primary);
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Typography */
+        /* ── Typography Scale ───────────────────────────────────────────── */
         h1, h2, h3, h4 {
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-weight: 700 !important;
-            letter-spacing: -0.03em !important;
+            font-family: 'Syne', sans-serif !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.035em !important;
             color: var(--text-primary) !important;
         }
 
         p, span, label, div {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
         }
 
         code, pre, .stCode {
             font-family: 'JetBrains Mono', monospace !important;
-            font-size: 0.88rem !important;
+            font-size: 0.86rem !important;
         }
 
-        /* Linear-Style Surface Card */
+        .gradient-heading {
+            background: linear-gradient(135deg, #ffffff 10%, #c084fc 45%, #00d4ff 90%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Syne', sans-serif !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.04em !important;
+            margin: 0;
+            display: inline-block;
+        }
+
+        /* ── High-Impact Bento & Aurora Cards ───────────────────────────── */
+        .aurora-card {
+            background: linear-gradient(145deg, rgba(19, 19, 30, 0.8), rgba(12, 12, 19, 0.9));
+            border: 1px solid rgba(124, 58, 237, 0.35);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 20px -3px rgba(124, 58, 237, 0.15);
+            backdrop-filter: blur(14px);
+            position: relative;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .aurora-card:hover {
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 14px 40px -5px rgba(0, 0, 0, 0.7), 0 0 25px -3px rgba(0, 212, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
         .pro-card {
-            background: var(--bg-surface);
+            background: rgba(12, 12, 19, 0.85);
             border: 1px solid var(--border-subtle);
             border-radius: 12px;
             padding: 1.25rem 1.5rem;
             margin-bottom: 1.25rem;
-            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 6px 24px -4px rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(12px);
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .pro-card:hover {
-            border-color: rgba(255, 255, 255, 0.14);
-            box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.6);
+            border-color: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 10px 32px -4px rgba(0, 0, 0, 0.7);
         }
 
-        /* Command Ticker / Status Bar */
+        /* ── Command Ticker / Status Bar ────────────────────────────────── */
         .telemetry-strip {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.6rem;
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: 10px;
-            padding: 0.65rem 1rem;
+            gap: 0.65rem;
+            background: rgba(12, 12, 19, 0.85);
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            border-radius: 12px;
+            padding: 0.75rem 1.15rem;
             margin-bottom: 1.5rem;
             align-items: center;
+            box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
         }
 
         .metric-chip {
             display: inline-flex;
             align-items: center;
-            gap: 0.45rem;
-            background: var(--bg-elevated);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 6px;
-            padding: 0.3rem 0.65rem;
+            gap: 0.5rem;
+            background: rgba(20, 20, 32, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 7px;
+            padding: 0.35rem 0.75rem;
             font-size: 0.82rem;
             font-family: 'JetBrains Mono', monospace;
             color: var(--text-secondary);
         }
-
         .metric-chip strong {
             color: var(--text-primary);
         }
 
         .status-dot {
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             display: inline-block;
         }
         .status-dot.online {
-            background: var(--accent-emerald);
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
         }
         .status-dot.alert {
-            background: var(--accent-rose);
-            box-shadow: 0 0 8px rgba(244, 63, 94, 0.6);
+            background: #ff4d6d;
+            box-shadow: 0 0 10px #ff4d6d;
         }
 
-        /* Buttons & Inputs */
+        /* ── Buttons & Interactive Elements ─────────────────────────────── */
         .stButton>button {
-            background: var(--bg-elevated) !important;
+            background: linear-gradient(145deg, #161624, #0f0f18) !important;
             color: var(--text-primary) !important;
-            border: 1px solid var(--border-subtle) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
             border-radius: 8px !important;
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            font-family: 'Space Grotesk', sans-serif !important;
             font-weight: 600 !important;
             font-size: 0.88rem !important;
-            padding: 0.5rem 1.1rem !important;
+            padding: 0.52rem 1.2rem !important;
             letter-spacing: -0.01em !important;
-            transition: all 0.15s ease !important;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
         }
-
         .stButton>button:hover {
-            background: #22222b !important;
-            border-color: rgba(255, 255, 255, 0.2) !important;
+            background: linear-gradient(145deg, #222236, #161624) !important;
+            border-color: rgba(124, 58, 237, 0.6) !important;
             color: #ffffff !important;
-            transform: translateY(-1px) !important;
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.3) !important;
+            transform: translateY(-1.5px) !important;
         }
-
         .stButton>button:active {
             transform: translateY(0px) !important;
         }
 
-        /* Chat Timeline Cards */
+        /* ── Chat Timeline Messages ─────────────────────────────────────── */
         .msg-query {
-            background: linear-gradient(180deg, #16161e 0%, #111117 100%);
-            border: 1px solid rgba(99, 102, 241, 0.25);
-            border-left: 3px solid var(--accent-indigo);
-            border-radius: 10px;
-            padding: 1rem 1.25rem;
-            margin: 0.75rem 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, rgba(22, 22, 35, 0.85) 0%, rgba(15, 15, 24, 0.95) 100%);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-left: 4px solid var(--accent-violet);
+            border-radius: 12px;
+            padding: 1.1rem 1.4rem;
+            margin: 0.85rem 0;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
         }
 
         .msg-answer {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: 12px;
-            padding: 1.25rem 1.5rem;
-            margin: 0.75rem 0 1.25rem 0;
-            box-shadow: 0 6px 25px -4px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(145deg, rgba(15, 15, 24, 0.9) 0%, rgba(10, 10, 16, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 14px;
+            padding: 1.35rem 1.6rem;
+            margin: 0.85rem 0 1.35rem 0;
+            box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+        .msg-answer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20px;
+            right: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.6), rgba(0, 212, 255, 0.6), transparent);
         }
 
-        /* Verification Badge */
+        /* ── Groundedness Badges ─────────────────────────────────────────── */
         .badge-verified {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.4);
             color: #34d399;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
         }
 
         .badge-warning {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.4);
             color: #fbbf24;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
         }
 
         .badge-refusal {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(244, 63, 94, 0.1);
-            border: 1px solid rgba(244, 63, 94, 0.3);
-            color: #fb7185;
+            background: rgba(255, 77, 109, 0.12);
+            border: 1px solid rgba(255, 77, 109, 0.4);
+            color: #ff4d6d;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
         }
 
-        /* Chunk Evidence Card */
+        /* ── Chunk Evidence Card ────────────────────────────────────────── */
         .chunk-card {
-            background: var(--bg-elevated);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 0.85rem 1rem;
-            margin-top: 0.6rem;
+            background: rgba(18, 18, 28, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 9px;
+            padding: 0.95rem 1.15rem;
+            margin-top: 0.65rem;
             font-size: 0.92rem;
-            line-height: 1.5;
-            transition: border-color 0.15s ease;
+            line-height: 1.55;
+            transition: all 0.2s ease;
         }
         .chunk-card:hover {
-            border-color: rgba(99, 102, 241, 0.3);
+            border-color: rgba(124, 58, 237, 0.4);
+            background: rgba(22, 22, 34, 0.8);
         }
 
-        /* Sidebar Styling */
+        /* ── Command Bar Input Override ─────────────────────────────────── */
+        [data-testid="stChatInput"] {
+            border-color: rgba(124, 58, 237, 0.35) !important;
+            border-radius: 12px !important;
+            background: rgba(12, 12, 19, 0.95) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+        }
+        [data-testid="stChatInput"]:focus-within {
+            border-color: rgba(0, 212, 255, 0.6) !important;
+            box-shadow: 0 0 25px rgba(124, 58, 237, 0.3) !important;
+        }
+
+        /* ── Tabs Styling ───────────────────────────────────────────────── */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 6px;
+            background-color: transparent;
+        }
+        .stTabs [data-baseweb="tab"] {
+            font-family: 'Space Grotesk', sans-serif !important;
+            font-weight: 600 !important;
+            color: var(--text-secondary) !important;
+            border-radius: 8px 8px 0 0 !important;
+            padding: 8px 16px !important;
+        }
+        .stTabs [aria-selected="true"] {
+            color: #ffffff !important;
+            border-bottom: 2px solid var(--accent-violet) !important;
+        }
+
+        /* ── Sidebar Styling ────────────────────────────────────────────── */
         section[data-testid="stSidebar"] {
-            background-color: #0c0c0f !important;
-            border-right: 1px solid var(--border-subtle) !important;
+            background: linear-gradient(180deg, #07070b 0%, #0a0a10 100%) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
 
-        /* Metric Widgets */
-        div[data-testid="stMetricValue"] {
-            font-family: 'JetBrains Mono', monospace !important;
-            font-size: 1.45rem !important;
-            font-weight: 700 !important;
-            color: var(--text-primary) !important;
-            letter-spacing: -0.03em;
-        }
-        div[data-testid="stMetricLabel"] {
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 0.82rem !important;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-tertiary) !important;
-        }
-
-        /* Scrollbars */
+        /* ── Scrollbars ─────────────────────────────────────────────────── */
         ::-webkit-scrollbar {
-            width: 7px;
-            height: 7px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #09090b;
+            background: #060608;
         }
         ::-webkit-scrollbar-thumb {
-            background: #27272a;
-            border-radius: 4px;
+            background: #252538;
+            border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #3f3f46;
+            background: #7c3aed;
         }
         </style>
         """,
@@ -281,32 +338,55 @@ def inject_executive_theme():
 
 
 def render_audio_briefing(text: str, element_id: str):
-    """Renders a sleek, professional voice briefing player (ChatGPT/ElevenLabs style)."""
+    """Renders a sleek voice briefing player with dynamic waveform equalizer."""
     escaped = text.replace("'", "\\'").replace('"', '\\"').replace("\n", " ")
     components.html(
         f"""
-        <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+        <style>
+            @keyframes pulse-wave {{
+                0%   {{ height: 4px; }}
+                50%  {{ height: 16px; }}
+                100% {{ height: 4px; }}
+            }}
+            .wave-bar {{
+                display: inline-block;
+                width: 3px;
+                height: 4px;
+                background: #00d4ff;
+                border-radius: 2px;
+                margin: 0 1px;
+            }}
+            .active-wave .w1 {{ animation: pulse-wave 0.6s infinite ease-in-out; }}
+            .active-wave .w2 {{ animation: pulse-wave 0.8s infinite ease-in-out 0.2s; }}
+            .active-wave .w3 {{ animation: pulse-wave 0.5s infinite ease-in-out 0.4s; }}
+            .active-wave .w4 {{ animation: pulse-wave 0.7s infinite ease-in-out 0.1s; }}
+        </style>
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
             <button id="btn-{element_id}" onclick="toggleVoice('{element_id}')" style="
                 display: inline-flex;
                 align-items: center;
-                gap: 7px;
-                background: #18181f;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                color: #e4e4e7;
+                gap: 8px;
+                background: linear-gradient(145deg, #141422, #0d0d17);
+                border: 1px solid rgba(124, 58, 237, 0.35);
+                color: #f4f4f5;
                 padding: 6px 14px;
-                border-radius: 6px;
-                font-family: 'Plus Jakarta Sans', sans-serif;
-                font-size: 0.82rem;
+                border-radius: 7px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.8rem;
                 font-weight: 500;
                 cursor: pointer;
-                transition: all 0.15s ease;
+                transition: all 0.2s ease;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.4);
             ">
-                <span id="icon-{element_id}">▶️</span>
+                <span id="icon-{element_id}" style="color: #00d4ff;">▶</span>
                 <span id="label-{element_id}">Listen to Executive Voice Briefing</span>
             </button>
-            <span id="wave-{element_id}" style="display: none; color: #6366f1; font-family: monospace; font-size: 0.8rem;">
-                ● ● ●
-            </span>
+            <div id="wave-{element_id}" style="display: none; height: 16px; align-items: center;">
+                <span class="wave-bar w1"></span>
+                <span class="wave-bar w2"></span>
+                <span class="wave-bar w3"></span>
+                <span class="wave-bar w4"></span>
+            </div>
         </div>
         <script>
             function toggleVoice(id) {{
@@ -318,9 +398,11 @@ def render_audio_briefing(text: str, element_id: str):
 
                 if (window.speechSynthesis.speaking) {{
                     window.speechSynthesis.cancel();
-                    icon.innerText = '▶️';
+                    icon.innerText = '▶';
+                    icon.style.color = '#00d4ff';
                     label.innerText = 'Listen to Executive Voice Briefing';
                     wave.style.display = 'none';
+                    wave.classList.remove('active-wave');
                     return;
                 }}
 
@@ -335,20 +417,24 @@ def render_audio_briefing(text: str, element_id: str):
                 if (pref) u.voice = pref;
 
                 u.onstart = () => {{
-                    icon.innerText = '⏸️';
+                    icon.innerText = '⏸';
+                    icon.style.color = '#ff4d6d';
                     label.innerText = 'Playing Audio Briefing... (Click to Pause)';
-                    wave.style.display = 'inline';
+                    wave.style.display = 'flex';
+                    wave.classList.add('active-wave');
                 }};
                 u.onend = u.onerror = () => {{
-                    icon.innerText = '▶️';
+                    icon.innerText = '▶';
+                    icon.style.color = '#00d4ff';
                     label.innerText = 'Listen to Executive Voice Briefing';
                     wave.style.display = 'none';
+                    wave.classList.remove('active-wave');
                 }};
                 window.speechSynthesis.speak(u);
             }}
         </script>
         """,
-        height=42,
+        height=48,
     )
 
 
@@ -362,9 +448,9 @@ def render_token_influence_heatmap(terms: list[dict]):
         word = t.get("term", "")
         weight = float(t.get("weight", 0.0))
         is_pos = weight >= 0
-        bg = "rgba(16, 185, 129, 0.15)" if is_pos else "rgba(244, 63, 94, 0.15)"
-        border = "rgba(16, 185, 129, 0.35)" if is_pos else "rgba(244, 63, 94, 0.35)"
-        color = "#34d399" if is_pos else "#fb7185"
+        bg = "rgba(16, 185, 129, 0.14)" if is_pos else "rgba(255, 77, 109, 0.14)"
+        border = "rgba(16, 185, 129, 0.4)" if is_pos else "rgba(255, 77, 109, 0.4)"
+        color = "#34d399" if is_pos else "#ff4d6d"
         sign = "+" if is_pos else ""
 
         chips_html.append(
@@ -376,24 +462,24 @@ def render_token_influence_heatmap(terms: list[dict]):
                 background: {bg};
                 border: 1px solid {border};
                 color: {color};
-                padding: 3px 8px;
-                border-radius: 5px;
+                padding: 3px 9px;
+                border-radius: 6px;
                 font-family: 'JetBrains Mono', monospace;
-                font-size: 0.8rem;
+                font-size: 0.82rem;
                 margin: 2px 4px 2px 0;
             ">
-                <strong>{word}</strong> <span style="opacity: 0.75; font-size: 0.75rem;">{sign}{weight:.3f}</span>
+                <strong>{word}</strong> <span style="opacity: 0.75; font-size: 0.74rem;">{sign}{weight:.3f}</span>
             </span>
             """
         )
 
     st.markdown(
         f"""
-        <div style="background: #14141a; border: 1px solid rgba(255, 255, 255, 0.06);
-                    border-radius: 8px; padding: 0.85rem 1rem; margin-top: 0.5rem;">
-            <div style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
-                        color: #a1a1aa; margin-bottom: 0.4rem; letter-spacing: 0.05em;">
-                Query Token Importance (LIME Surrogate Weights)
+        <div style="background: rgba(14, 14, 22, 0.9); border: 1px solid rgba(124, 58, 237, 0.25);
+                    border-radius: 10px; padding: 0.95rem 1.15rem; margin-top: 0.6rem;">
+            <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+                        color: #c084fc; margin-bottom: 0.5rem; letter-spacing: 0.06em; font-family: 'Syne', sans-serif;">
+                Query Token Influence (LIME Surrogate Weights)
             </div>
             <div style="display: flex; flex-wrap: wrap; gap: 4px;">
                 {''.join(chips_html)}
@@ -412,15 +498,187 @@ def render_confetti():
         <script>
             if (window.confetti) {
                 confetti({
-                    particleCount: 45,
-                    spread: 60,
+                    particleCount: 50,
+                    spread: 70,
                     origin: { y: 0.65 },
-                    colors: ['#6366f1', '#10b981', '#0ea5e9']
+                    colors: ['#7c3aed', '#00d4ff', '#ff4d6d', '#10b981']
                 });
             }
         </script>
         """,
         height=0,
+    )
+
+
+def render_animated_metric(label: str, value, accent_color: str = "#7c3aed", suffix: str = ""):
+    """Renders a bento-style animated counter card with Syne numerals and easing."""
+    num_str = str(value).replace("ms", "").replace("%", "").strip()
+    try:
+        is_float = "." in num_str
+        target_num = float(num_str)
+    except ValueError:
+        target_num = None
+
+    js_counter = ""
+    if target_num is not None:
+        precision = 1 if is_float else 0
+        js_counter = f"""
+        let start = 0;
+        const target = {target_num};
+        const duration = 900;
+        const startTime = performance.now();
+        function update(currentTime) {{
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const ease = 1 - Math.pow(1 - progress, 3);
+            const current = (target * ease).toFixed({precision});
+            document.getElementById('metric-val').innerText = current + '{suffix}';
+            if (progress < 1) requestAnimationFrame(update);
+        }}
+        requestAnimationFrame(update);
+        """
+    else:
+        js_counter = f"document.getElementById('metric-val').innerText = '{value}';"
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <link rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600&family=Space+Grotesk:wght@500;600&family=Syne:wght@800&display=swap">
+      <style>
+        body {{
+          margin: 0;
+          padding: 0;
+          background: transparent;
+          font-family: 'Space Grotesk', sans-serif;
+          user-select: none;
+        }}
+        .card {{
+          background: rgba(14, 14, 22, 0.85);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-left: 3px solid {accent_color};
+          border-radius: 9px;
+          padding: 10px 14px;
+          box-sizing: border-box;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+          transition: border-color 0.2s;
+        }}
+        .card:hover {{
+          border-color: {accent_color};
+        }}
+        .label {{
+          font-size: 0.72rem;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #94a3b8;
+          font-weight: 600;
+          margin-bottom: 2px;
+        }}
+        .value {{
+          font-family: 'Syne', sans-serif;
+          font-size: 1.35rem;
+          font-weight: 800;
+          color: #f8fafc;
+          letter-spacing: -0.02em;
+        }}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="label">{label}</div>
+        <div class="value" id="metric-val">{value}</div>
+      </div>
+      <script>
+        {js_counter}
+      </script>
+    </body>
+    </html>
+    """
+    components.html(html_content, height=72)
+
+
+def render_status_ring(is_online: bool):
+    """Renders a live pulsing radar beacon widget."""
+    color = "#10b981" if is_online else "#ff4d6d"
+    text = "SYSTEM ONLINE" if is_online else "SYSTEM DEGRADED"
+    components.html(
+        f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <link rel="stylesheet"
+                href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap">
+          <style>
+            body {{
+              margin: 0;
+              padding: 0;
+              background: transparent;
+              display: flex;
+              align-items: center;
+              justify-content: flex-end;
+              height: 48px;
+              font-family: 'JetBrains Mono', monospace;
+            }}
+            .beacon-wrap {{
+              display: inline-flex;
+              align-items: center;
+              gap: 10px;
+              background: rgba(14, 14, 22, 0.85);
+              border: 1px solid rgba(255, 255, 255, 0.08);
+              padding: 5px 12px;
+              border-radius: 20px;
+              box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            }}
+            .radar-core {{
+              position: relative;
+              width: 10px;
+              height: 10px;
+            }}
+            .radar-dot {{
+              width: 10px;
+              height: 10px;
+              background: {color};
+              border-radius: 50%;
+              box-shadow: 0 0 10px {color};
+            }}
+            .radar-pulse {{
+              position: absolute;
+              top: -5px;
+              left: -5px;
+              width: 20px;
+              height: 20px;
+              border: 2px solid {color};
+              border-radius: 50%;
+              animation: ripple 1.6s ease-out infinite;
+              opacity: 0;
+            }}
+            @keyframes ripple {{
+              0%   {{ transform: scale(0.4); opacity: 1; }}
+              100% {{ transform: scale(1.6); opacity: 0; }}
+            }}
+            .radar-text {{
+              font-size: 0.72rem;
+              font-weight: 700;
+              color: {color};
+              letter-spacing: 0.08em;
+            }}
+          </style>
+        </head>
+        <body>
+          <div class="beacon-wrap">
+            <div class="radar-core">
+              <div class="radar-pulse"></div>
+              <div class="radar-dot"></div>
+            </div>
+            <span class="radar-text">{text}</span>
+          </div>
+        </body>
+        </html>
+        """,
+        height=48,
     )
 
 
@@ -432,17 +690,17 @@ def render_mermaid_diagram(code: str, height: int = 560):
     <head>
       <meta charset="utf-8">
       <link rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600&family=Space+Grotesk:wght@600&family=Syne:wght@700&display=swap">
       <style>
         body {{
           margin: 0;
           padding: 0;
-          background: #0d0d12;
-          color: #f4f4f5;
-          font-family: 'Plus Jakarta Sans', sans-serif;
+          background: #09090f;
+          color: #f8fafc;
+          font-family: 'Space Grotesk', sans-serif;
           box-sizing: border-box;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 12px;
+          border: 1px solid rgba(124, 58, 237, 0.25);
+          border-radius: 14px;
           overflow: hidden;
           position: relative;
           height: {height}px;
@@ -450,24 +708,25 @@ def render_mermaid_diagram(code: str, height: int = 560):
         }}
         .toolbar {{
           position: absolute;
-          top: 10px;
-          right: 12px;
+          top: 12px;
+          right: 14px;
           display: flex;
           align-items: center;
           gap: 6px;
           z-index: 100;
-          background: rgba(24, 24, 31, 0.92);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 7px;
-          padding: 4px 6px;
-          backdrop-filter: blur(8px);
+          background: rgba(15, 15, 24, 0.92);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 8px;
+          padding: 4px 8px;
+          backdrop-filter: blur(10px);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }}
         .toolbar button {{
-          background: #18181f;
-          color: #e4e4e7;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 5px;
-          padding: 3px 9px;
+          background: #141422;
+          color: #e2e8f0;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 6px;
+          padding: 4px 10px;
           font-size: 0.78rem;
           font-weight: 600;
           cursor: pointer;
@@ -475,9 +734,10 @@ def render_mermaid_diagram(code: str, height: int = 560):
           transition: all 0.15s ease;
         }}
         .toolbar button:hover {{
-          background: #27272a;
+          background: #7c3aed;
           color: #ffffff;
-          border-color: rgba(255, 255, 255, 0.2);
+          border-color: #7c3aed;
+          box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
         }}
         #viewport {{
           width: 100%;
@@ -515,15 +775,15 @@ def render_mermaid_diagram(code: str, height: int = 560):
           theme: 'dark',
           themeVariables: {{
             darkMode: true,
-            background: '#0d0d12',
-            mainBkg: '#16161e',
-            nodeBorder: '#3f3f46',
-            clusterBkg: '#101017',
-            clusterBorder: '#27272a',
-            titleColor: '#e4e4e7',
-            textColor: '#f4f4f5',
-            lineColor: '#6366f1',
-            fontFamily: 'Plus Jakarta Sans, sans-serif',
+            background: '#09090f',
+            mainBkg: '#12121c',
+            nodeBorder: '#3b3b54',
+            clusterBkg: '#0d0d16',
+            clusterBorder: '#27273a',
+            titleColor: '#e2e8f0',
+            textColor: '#f8fafc',
+            lineColor: '#00d4ff',
+            fontFamily: 'Space Grotesk, sans-serif',
             fontSize: '12px'
           }}
         }});
@@ -584,7 +844,7 @@ def render_mermaid_diagram(code: str, height: int = 560):
         <button onclick="zoom(0.15)">＋ Zoom In</button>
         <button onclick="zoom(-0.15)">－ Zoom Out</button>
         <button onclick="resetView()">↺ Reset</button>
-        <span style="font-size: 0.72rem; color: #71717a; padding: 2px 6px; font-family: 'JetBrains Mono';">
+        <span style="font-size: 0.72rem; color: #94a3b8; padding: 2px 6px; font-family: 'JetBrains Mono';">
           Pan & Wheel Zoom
         </span>
       </div>
