@@ -510,8 +510,26 @@ def render_confetti():
     )
 
 
-def render_animated_metric(label: str, value, accent_color: str = "#7c3aed", suffix: str = ""):
+def render_animated_metric(
+    label: str,
+    value,
+    accent_color: str | None = None,
+    suffix: str = "",
+    accent: str | None = None,
+):
     """Renders a bento-style animated counter card with Syne numerals and easing."""
+    color_palette = {
+        "emerald": "#10b981",
+        "violet": "#7c3aed",
+        "cyan": "#00d4ff",
+        "coral": "#ff4d6d",
+        "amber": "#f59e0b",
+        "rose": "#f43f5e",
+        "indigo": "#6366f1",
+    }
+    raw_color = accent or accent_color or "#7c3aed"
+    chosen_accent = color_palette.get(str(raw_color).lower(), raw_color)
+
     num_str = str(value).replace("ms", "").replace("%", "").strip()
     try:
         is_float = "." in num_str
@@ -558,7 +576,7 @@ def render_animated_metric(label: str, value, accent_color: str = "#7c3aed", suf
         .card {{
           background: rgba(14, 14, 22, 0.85);
           border: 1px solid rgba(255, 255, 255, 0.08);
-          border-left: 3px solid {accent_color};
+          border-left: 3px solid {chosen_accent};
           border-radius: 9px;
           padding: 10px 14px;
           box-sizing: border-box;
@@ -566,7 +584,7 @@ def render_animated_metric(label: str, value, accent_color: str = "#7c3aed", suf
           transition: border-color 0.2s;
         }}
         .card:hover {{
-          border-color: {accent_color};
+          border-color: {chosen_accent};
         }}
         .label {{
           font-size: 0.72rem;
