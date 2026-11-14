@@ -1,4 +1,4 @@
-"""Convenience launcher for the RAGOps Streamlit Cyberpunk UI."""
+"""Convenience launcher for the RAGOps Streamlit Aurora Command UI."""
 import os
 import sys
 from pathlib import Path

@@ -47,7 +47,7 @@ else:
             print("   FastAPI Backend started successfully [OK]", flush=True)
             break
 
-print("2. Launching Streamlit Cyberpunk UI on http://localhost:8501 ...", flush=True)
+print("2. Launching Streamlit Aurora Command UI on http://localhost:8501 ...", flush=True)
 ui_proc = subprocess.Popen(
     ["py", "-3.12", str(root / "run_ui.py")],
     cwd=str(root),
