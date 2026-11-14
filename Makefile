@@ -9,6 +9,9 @@ api:        ## start the FastAPI backend on :8000
 ui:         ## start the Streamlit frontend on :8501
 	streamlit run frontend/Employee_Assistant.py
 
+stop:       ## stop all running backend (:8000) and frontend (:8501) services
+	py -3.12 stop_project.py
+
 mlflow:     ## MLflow UI on :5000
 	mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5000
 

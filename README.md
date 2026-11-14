@@ -20,10 +20,11 @@ Built as an MLOps project: versioned documents/prompts, tracked experiments, aut
 
 ```
 src/ragops/   core code (documents, retrievers, index, generation, pipeline, service, explain)
-api/          FastAPI backend          frontend/   Streamlit: Employee_Assistant.py + pages/HR_Portal.py
-airflow/      DAGs                     monitoring/ metrics, drift, Prometheus + Grafana config
-configs/      config.yaml, prompts.yaml    data/   raw docs, eval set, (generated) index
-tests/        unit, pipeline/quality-gate, API tests     cloud/   optional AWS scripts    docs/  model + data cards
+api/          FastAPI backend          frontend/   Streamlit Cyberpunk UI:
+airflow/      DAGs                                 - Employee_Assistant.py (Neural Knowledge Matrix)
+configs/      config.yaml, prompts.yaml            - pages/HR_Portal.py (HR & Ops Command Nexus)
+monitoring/   metrics, drift, Prom+Graf            - pages/System_Observability.py (Neural Observability)
+tests/        unit, pipeline, API tests   cloud/   optional AWS scripts    docs/  model + data cards
 ```
 
 ## Requirement checklist (course template)
