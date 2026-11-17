@@ -1,16 +1,7 @@
 """Convenience launcher for the RAGOps Streamlit Aurora Command UI."""
-import os
 import sys
 from pathlib import Path
 
-# Add site-packages if on Windows Store Python setup
-_LOCAL_CACHE = (
-    r"C:\Users\HP\AppData\Local\Packages"
-    r"\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages"
-)
-if os.path.exists(_LOCAL_CACHE) and _LOCAL_CACHE not in sys.path:
-    import site
-    site.addsitedir(_LOCAL_CACHE)
 
 root_dir = Path(__file__).resolve().parent
 frontend_script = root_dir / "frontend" / "Employee_Assistant.py"

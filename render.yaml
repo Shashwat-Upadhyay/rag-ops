@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: rag-ops-demo
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: HR_TOKEN
+        sync: false
+      - key: RAGOPS_EXPERIMENTS
+        value: baseline_tfidf
+      - key: OMP_NUM_THREADS
+        value: "1"
+      - key: OPENBLAS_NUM_THREADS
+        value: "1"

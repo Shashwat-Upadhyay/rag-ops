@@ -2,24 +2,17 @@
 Document ingestion, validation, automated MLflow pipeline retraining,
 and live quality gate verification.
 """
-import os
 import sys
-import time
 from pathlib import Path
 
-# Ensure local packages site-packages is on sys.path
-_LOCAL_CACHE = (
-    r"C:\Users\HP\AppData\Local\Packages"
-    r"\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages"
-)
-if os.path.exists(_LOCAL_CACHE) and _LOCAL_CACHE not in sys.path:
-    sys.path.append(_LOCAL_CACHE)
 
 _ROOT = str(Path(__file__).resolve().parent.parent.parent)
 if _ROOT not in sys.path:
     sys.path.append(_ROOT)
 
-import requests  # noqa: E402
+import api_client as requests  # noqa: E402
+from html import escape
+from api_client import API_URL as API, document_url
 import streamlit as st  # noqa: E402
 from theme import (  # noqa: E402
     inject_executive_theme,
@@ -28,7 +21,7 @@ from theme import (  # noqa: E402
 )
 
 # ----------------- Configuration & Initialization -----------------
-API = os.getenv("API_URL", "http://localhost:8000")
+
 
 st.set_page_config(
     page_title="RAGOps // Policy Operations Control Center",
@@ -151,16 +144,25 @@ st.sidebar.markdown(
     unsafe_allow_html=True,
 )
 
-default_token = os.getenv("HR_TOKEN", "hr-demo")
-token = st.sidebar.text_input("HR Token", type="password", value=default_token)
+token = st.sidebar.text_input("HR Token", type="password", key="hr_token")
 headers = {"X-HR-Token": token}
-
-if not token:
-    if st.sidebar.button("🔑 Inject Demo Key (hr-demo)", use_container_width=True):
-        st.session_state["hr_token"] = "hr-demo"
-        st.rerun()
-
-is_authorized = token == default_token
+is_authorized = False
+docs_response = None
+if token:
+    try:
+        docs_response = requests.get(f"{API}/admin/documents", headers=headers, timeout=10)
+        is_authorized = True
+    except requests.RequestException as exc:
+        response = getattr(exc, "response", None)
+        status = response.status_code if response is not None else None
+        if status == 503:
+            st.sidebar.error("Administrator access is not configured on the API server. Set HR_TOKEN in the project .env file and restart the backend.")
+        elif status in (401, 403):
+            st.sidebar.error("Incorrect administrator token. Use the HR_TOKEN configured on the API server.")
+        else:
+            st.sidebar.error("Cannot contact the API to verify access. Check that the backend is running.")
+else:
+    st.sidebar.info("Enter your administrator token to manage documents.")
 
 if is_authorized:
     st.sidebar.markdown(
@@ -174,13 +176,13 @@ if is_authorized:
         """,
         unsafe_allow_html=True,
     )
-else:
+elif token:
     st.sidebar.markdown(
         """
         <div class="auth-fail">
             <span style="font-family:'JetBrains Mono',monospace; font-size:0.78rem;
                          color:#fb7185; font-weight:700;">
-                ✗ Invalid Security Token
+                Access not verified
             </span>
         </div>
         """,
@@ -200,11 +202,13 @@ try:
 except Exception:
     drift_info = {}
 
-is_drifted = drift_info.get("drift_detected", False)
-sys_state_val = "ONLINE" if health_info.get("status") == "ok" else "OFFLINE"
-retriever_val = health_info.get("retriever", "tfidf").upper()
-index_ver_val = health_info.get("index_version", "N/A")[:8]
-drift_val = "DRIFT DETECTED" if is_drifted else "STABLE (0.00)"
+is_drifted = drift_info.get("drift_detected")
+if drift_info.get("note"):
+    is_drifted = None
+sys_state_val = {"ok": "READY", "no_index": "INDEX NOT READY"}.get(health_info.get("status"), "UNAVAILABLE")
+retriever_val = str(health_info.get("retriever") or "Unavailable").upper()
+index_ver_val = str(health_info.get("index_version") or "Unavailable")[:8]
+drift_val = "UNAVAILABLE" if is_drifted is None else ("DRIFT DETECTED" if is_drifted else "NO DRIFT DETECTED")
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
@@ -257,20 +261,7 @@ files = st.file_uploader(
 )
 
 if st.button("🚀 Ingest Documents & Retrain Model", disabled=not files or not is_authorized, use_container_width=True):
-    progress_bar = st.progress(0, text="Transferring document files...")
-
-    stages = [
-        (20, "1/5 ▸ Validating file format specifications and text clean standards..."),
-        (45, "2/5 ▸ Generating sliding-window text chunks with overlap preservation..."),
-        (65, "3/5 ▸ Fitting TF-IDF vectors and updating candidate models..."),
-        (85, "4/5 ▸ Running Automated Quality Gate Evaluation suite (12 test queries)..."),
-        (95, "5/5 ▸ Evaluating promotion criteria and registering model in MLflow..."),
-    ]
-
-    for pct, msg in stages:
-        progress_bar.progress(pct, text=msg)
-        time.sleep(0.25)
-
+    operation = st.status("Uploading documents and processing the index…", expanded=True)
     try:
         r = requests.post(
             f"{API}/admin/upload",
@@ -278,7 +269,7 @@ if st.button("🚀 Ingest Documents & Retrain Model", disabled=not files or not 
             timeout=600,
             files=[(("files", (f.name, f.getvalue()))) for f in files],
         )
-        progress_bar.progress(100, text="✓ Pipeline execution finished!")
+        operation.update(label="Pipeline request completed", state="complete")
 
         if r.ok:
             out = r.json()
@@ -300,7 +291,7 @@ if st.button("🚀 Ingest Documents & Retrain Model", disabled=not files or not 
                             </span>
                         </div>
                         <p style="color: #e4e4e7; margin: 0; font-size: 0.95rem;">
-                            Successfully ingested <strong>{", ".join(saved_files)}</strong>.
+                            Successfully ingested <strong>{escape(", ".join(saved_files))}</strong>.
                             Candidate model achieved a <strong>Hit-Rate of {hit_rate:.0%}</strong>
                             on the evaluation suite. The new index has been promoted to production and is now live.
                         </p>
@@ -335,6 +326,7 @@ if st.button("🚀 Ingest Documents & Retrain Model", disabled=not files or not 
             )
             st.error(f"Ingestion failed: {err_msg}")
     except Exception as e:
+        operation.update(label="Ingestion failed", state="error")
         st.error(f"Service request failed: {e}")
 
 st.markdown("<hr style='border-color: rgba(255,255,255,0.06); margin: 2rem 0;'>", unsafe_allow_html=True)
@@ -356,6 +348,9 @@ def _file_icon(filename: str) -> str:
 
 
 try:
+    if not is_authorized:
+        st.info("Authenticate to view the document inventory.")
+        st.stop()
     r_docs = requests.get(f"{API}/admin/documents", headers=headers, timeout=10)
     if r_docs.status_code == 401:
         st.info("🔒 Enter a valid HR administrator token in the sidebar to view and manage registered documentation.")
@@ -385,23 +380,23 @@ try:
                                     flex-wrap: wrap; gap: 0.5rem;">
                             <div>
                                 <span style="font-weight: 700; color: #f4f4f5; font-size: 1rem;">
-                                    {icon} {name}
+                                    {icon} {escape(name)}
                                 </span>
                                 <span style="margin-left: 0.6rem; background: rgba(99,102,241,0.15);
                                              border: 1px solid rgba(99,102,241,0.3); color: #818cf8;
                                              padding: 2px 7px; border-radius: 4px;
                                              font-family: 'JetBrains Mono',monospace; font-size: 0.75rem;">
-                                    v{ver}
+                                    v{escape(str(ver))}
                                 </span>
                                 <span style="margin-left: 0.4rem; background: rgba(255,255,255,0.05);
                                              border: 1px solid rgba(255,255,255,0.1); color: #a1a1aa;
                                              padding: 2px 7px; border-radius: 4px;
                                              font-family: 'JetBrains Mono',monospace; font-size: 0.75rem;">
-                                    {sha}...
+                                    {escape(sha)}...
                                 </span>
                             </div>
                             <div style="font-family: 'JetBrains Mono',monospace; color: #71717a; font-size: 0.8rem;">
-                                Updated: {updated}
+                                Updated: {escape(updated)}
                             </div>
                         </div>
                         <div class="index-bar-wrap">
@@ -409,7 +404,7 @@ try:
                         </div>
                         <div style="font-family:'JetBrains Mono',monospace; font-size:0.68rem;
                                     color:#34d399; margin-top:3px;">
-                            Index Weight: 100%
+                            Registered document
                         </div>
                     </div>
                     """,
@@ -423,7 +418,7 @@ try:
                         with st.expander(f"Inspect Document Content ({name})", expanded=False):
                             try:
                                 content = raw_path.read_text(encoding="utf-8", errors="ignore")
-                                st.markdown(f"```markdown\n{content}\n```")
+                                st.code(content, language="markdown")
                             except Exception as ex:
                                 st.caption(f"Could not read content: {ex}")
                 with col_del:
@@ -434,14 +429,21 @@ try:
                         help=f"Delete {name} and rebuild index",
                     )
                     if del_clicked:
+                        st.session_state["pending_delete"] = name
+                    if st.session_state.get("pending_delete") == name:
+                        st.warning(f"Permanently delete {name} and rebuild the index?")
+                        if st.button("Cancel", key=f"cancel_{name}"):
+                            st.session_state.pop("pending_delete", None)
+                            st.rerun()
+                    if st.session_state.get("pending_delete") == name and st.button("Confirm deletion", key=f"confirm_{name}"):
                         try:
                             with st.spinner(f"Deleting {name} & rebuilding index..."):
                                 rd = requests.delete(
-                                    f"{API}/admin/documents/{name}", headers=headers, timeout=600
+                                    document_url(name), headers=headers, timeout=600
                                 )
                                 if rd.ok:
                                     st.success(f"Deleted {name} and rebuilt index.")
-                                    time.sleep(0.5)
+                                    st.session_state.pop("pending_delete", None)
                                     st.rerun()
                                 else:
                                     st.error(rd.text)

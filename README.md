@@ -44,3 +44,16 @@ tests/        unit, pipeline, API tests   cloud/   optional AWS scripts    docs/
 - The Airflow DAGs and AWS scripts are written but not executed.
 - Eval set is small (12 questions) and groundedness is a lexical proxy. Thresholds (`min_score`) for dense/hybrid are starting guesses: tune on your documents.
 - HR auth is a shared token (demo only).
+
+### Frontend access and status
+
+Set a strong `HR_TOKEN` in the API server environment before using the HR portal.
+Administrator routes fail closed when it is unset. The portal starts with an empty
+password field and verifies the entered token with the API. Deploy behind HTTPS
+and your organization’s access gateway; the shared token is not individual user identity.
+
+Use **Refresh service status** or **Refresh metrics** to fetch a new snapshot.
+Metrics are not continuously streamed. Unknown drift is displayed as unavailable.
+Uploads show a processing indicator until the server responds; deletion requires confirmation.
+The UI uses system font fallbacks and an offline architecture overview without external CDN scripts.
+Install `requirements-ui.txt` into the Python environment used to run `run_ui.py`.

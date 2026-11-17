@@ -1,5 +1,9 @@
 .venv
 .git
+.env
+.env.*
+venv
+env
 mlruns
 mlflow.db
 data/processed

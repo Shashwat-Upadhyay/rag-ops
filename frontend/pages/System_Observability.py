@@ -2,18 +2,10 @@
 Real-time Prometheus metrics, end-to-end architecture diagram,
 interactive retrieval sandbox, and governance cards.
 """
-import os
 import re
 import sys
 from pathlib import Path
 
-# Ensure local packages site-packages is on sys.path
-_LOCAL_CACHE = (
-    r"C:\Users\HP\AppData\Local\Packages"
-    r"\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages"
-)
-if os.path.exists(_LOCAL_CACHE) and _LOCAL_CACHE not in sys.path:
-    sys.path.append(_LOCAL_CACHE)
 
 _ROOT = str(Path(__file__).resolve().parent.parent.parent)
 if _ROOT not in sys.path:
@@ -21,7 +13,9 @@ if _ROOT not in sys.path:
 
 import altair as alt  # noqa: E402
 import pandas as pd  # noqa: E402
-import requests  # noqa: E402
+import api_client as requests  # noqa: E402
+from html import escape
+from api_client import API_URL as API
 import streamlit as st  # noqa: E402
 from theme import (  # noqa: E402
     inject_executive_theme,
@@ -30,7 +24,7 @@ from theme import (  # noqa: E402
 )
 
 # ----------------- Configuration & Initialization -----------------
-API = os.getenv("API_URL", "http://localhost:8000")
+
 
 st.set_page_config(
     page_title="RAGOps // Telemetry & Architecture Diagnostics",
@@ -141,9 +135,9 @@ with tab_metrics:
                 </p>
             </div>
             <div style="display: flex; align-items: center; gap: 6px;">
-                <span class="status-dot online"></span>
+                <span class="status-dot"></span>
                 <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #34d399; font-weight: 700;">
-                    STREAM ACTIVE
+                    SNAPSHOT ON REFRESH
                 </span>
             </div>
         </div>
@@ -151,9 +145,12 @@ with tab_metrics:
         unsafe_allow_html=True,
     )
 
+    st.caption("Metrics are fetched when this page reruns; they are not a continuous stream.")
+    st.button("Refresh metrics")
     try:
         r_metrics = requests.get(f"{API}/metrics", timeout=5)
         if r_metrics.ok:
+            st.success("Metrics snapshot fetched successfully.")
             raw_text = r_metrics.text
 
             req_pattern = re.compile(r'ragops_requests_total\{endpoint="([^"]+)",status="([^"]+)"\}\s+([0-9.]+)')
@@ -275,7 +272,7 @@ with tab_sim:
                                 f"""
                                 <div class="chunk-card">
                                     <div style="display: flex; justify-content: space-between; font-weight: 600; color: #c084fc;">
-                                        <span>📄 {s.get('source')} (v{s.get('doc_version', 1)})</span>
+                                        <span>📄 {escape(str(s.get('source')))} (v{escape(str(s.get('doc_version', 1)))})</span>
                                         <span style="color: #34d399; font-family: 'JetBrains Mono';">
                                             Score: {score:.3f} ({score_pct:.0f}%)
                                         </span>
@@ -285,7 +282,7 @@ with tab_sim:
                                         <div style="background: {bar_col}; width: {score_pct}%; height: 100%;"></div>
                                     </div>
                                     <div style="color: #cbd5e1; font-size: 0.92rem; font-style: italic; line-height: 1.5;">
-                                        "{s.get('snippet', '')}"
+                                        "{escape(str(s.get('snippet', '')))}"
                                     </div>
                                 </div>
                                 """,
@@ -310,7 +307,7 @@ with tab_cards:
             <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4);
                          color: #34d399; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
                          padding: 3px 10px; border-radius: 4px; font-weight: 700;">
-                AIR-GAPPED COMPLIANCE VERIFIED
+                MODEL & DATA DOCUMENTATION
             </span>
         </div>
         """,

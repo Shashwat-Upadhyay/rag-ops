@@ -1,0 +1,18 @@
+FROM python:3.11-slim
+WORKDIR /app
+ENV PYTHONPATH=/app/src:/app PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
+COPY requirements-render.txt ./
+RUN pip install --no-cache-dir -r requirements-render.txt
+COPY src ./src
+COPY api ./api
+COPY monitoring ./monitoring
+COPY frontend ./frontend
+COPY configs ./configs
+COPY docs ./docs
+COPY data/raw ./data/raw
+COPY data/eval ./data/eval
+COPY deploy/render_start.py ./deploy/render_start.py
+ENV RAGOPS_EXPERIMENTS=baseline_tfidf
+# Build a small, evaluated demo index; no embedding downloads or credentials needed.
+RUN python -m ragops.pipeline --experiments baseline_tfidf
+CMD ["python", "deploy/render_start.py"]

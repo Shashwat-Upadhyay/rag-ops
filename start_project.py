@@ -1,18 +1,15 @@
 """Starts or verifies FastAPI backend (:8000) and launches Streamlit frontend (:8501)."""
 import os
 import subprocess
+import sys
 import time
 import urllib.request
 from pathlib import Path
 
-_LOCAL_CACHE = (
-    r"C:\Users\HP\AppData\Local\Packages"
-    r"\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages"
-)
 root = Path(__file__).resolve().parent
 
 env = os.environ.copy()
-env["PYTHONPATH"] = f"{root / 'src'};{root};{env.get('PYTHONPATH', '')}"
+env["PYTHONPATH"] = os.pathsep.join([str(root / "src"), str(root), env.get("PYTHONPATH", "")])
 
 print("==================================================", flush=True)
 print("  🚀 STARTING RAG-OPS ENTERPRISE PLATFORM", flush=True)
@@ -33,11 +30,10 @@ if is_api_running():
 else:
     print("1. Launching FastAPI Backend on http://localhost:8000 ...", flush=True)
     api_cmd = (
-        f"import site; site.addsitedir(r'{_LOCAL_CACHE}'); "
         "import uvicorn; uvicorn.run('api.main:app', host='127.0.0.1', port=8000)"
     )
     api_proc = subprocess.Popen(
-        ["py", "-3.12", "-c", api_cmd],
+        [sys.executable, "-c", api_cmd],
         cwd=str(root),
         env=env,
     )
@@ -49,7 +45,7 @@ else:
 
 print("2. Launching Streamlit Aurora Command UI on http://localhost:8501 ...", flush=True)
 ui_proc = subprocess.Popen(
-    ["py", "-3.12", str(root / "run_ui.py")],
+    [sys.executable, str(root / "run_ui.py")],
     cwd=str(root),
     env=env,
 )

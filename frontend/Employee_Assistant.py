@@ -3,22 +3,15 @@ High-precision enterprise Q&A with real-time groundedness verification,
 LIME explainability, and multi-department prompt routing.
 """
 import json
-import os
-import sys
 import time
 from datetime import datetime
 
-# Ensure local packages site-packages is on sys.path
-_LOCAL_CACHE = (
-    r"C:\Users\HP\AppData\Local\Packages"
-    r"\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages"
-)
-if os.path.exists(_LOCAL_CACHE) and _LOCAL_CACHE not in sys.path:
-    sys.path.append(_LOCAL_CACHE)
 
 import altair as alt  # noqa: E402
 import pandas as pd  # noqa: E402
-import requests  # noqa: E402
+import api_client as requests  # noqa: E402
+from html import escape
+from api_client import API_URL as API
 import streamlit as st  # noqa: E402
 from theme import (  # noqa: E402
     inject_executive_theme,
@@ -30,10 +23,10 @@ from theme import (  # noqa: E402
 )
 
 # ----------------- Configuration & Initialization -----------------
-API = os.getenv("API_URL", "http://localhost:8000")
+
 
 st.set_page_config(
-    page_title="RAGOps // Neural Knowledge Command",
+    page_title="RAGOps // Employee Policy Assistant",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -56,7 +49,7 @@ st.session_state.setdefault("pending_prompt", None)
 def get_system_telemetry():
     """Fetches real-time system health and drift status from the backend."""
     health_data = {"status": "offline", "index_version": "N/A", "retriever": "N/A", "documents": {}}
-    drift_data = {"drift_detected": False, "decision": "unknown"}
+    drift_data = {"drift_detected": None, "decision": "unavailable"}
     try:
         r = requests.get(f"{API}/health", timeout=3)
         if r.ok:
@@ -76,10 +69,12 @@ def get_system_telemetry():
 
 telemetry, drift = get_system_telemetry()
 is_online = telemetry.get("status") == "ok"
-doc_count = len(telemetry.get("documents", {}))
-retriever_name = telemetry.get("retriever", "tfidf")
-index_ver = telemetry.get("index_version", "unknown")
-drift_detected = drift.get("drift_detected", False)
+doc_count = len(telemetry.get("documents") or {})
+retriever_name = str(telemetry.get("retriever") or "Unavailable")
+index_ver = str(telemetry.get("index_version") or "Unavailable")
+drift_detected = drift.get("drift_detected")
+if drift.get("note"):
+    drift_detected = None
 
 
 # ----------------- Executive Header & Live Status Radar -----------------
@@ -93,7 +88,7 @@ with c_head_left:
                 Neural Knowledge Command
             </h1>
             <p style="margin: 0.15rem 0 0.5rem 0; color: #94a3b8; font-size: 0.95rem; font-weight: 500;">
-                Verified corporate documentation intelligence with automated hallucination defenses & LIME explainability.
+                Find answers to HR, IT, finance, and onboarding questions, with supporting policy passages.
             </p>
         </div>
         """,
@@ -113,7 +108,7 @@ with c_head_right:
             <span style="background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4);
                          color: #34d399; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700;
                          padding: 3px 9px; border-radius: 5px;">
-                PRODUCTION
+                POLICY ASSISTANT
             </span>
         </div>
         """,
@@ -122,36 +117,43 @@ with c_head_right:
 
 # ----------------- Telemetry Command Strip -----------------
 dot_class = "online" if is_online else "alert"
-drift_color = "#ff4d6d" if drift_detected else "#10b981"
-drift_label = "Drift Alert" if drift_detected else "Zero Drift (Stable)"
+drift_color = "#94a3b8" if drift_detected is None else ("#ff4d6d" if drift_detected else "#10b981")
+drift_label = "Unavailable" if drift_detected is None else ("Drift Alert" if drift_detected else "No drift detected")
+backend_label = {"ok": "Ready", "no_index": "Index not ready"}.get(telemetry.get("status"), "Unavailable")
+if telemetry.get("status") == "no_index":
+    st.info("The service is running. An administrator needs to build the document index before you can ask questions.")
+if st.button("Refresh service status"):
+    get_system_telemetry.clear()
+    st.rerun()
 
-st.markdown(
-    f"""
-    <div class="telemetry-strip">
-        <div class="metric-chip">
-            <span class="status-dot {dot_class}"></span>
-            Backend: <strong>{'Online (HTTP 200)' if is_online else 'Offline'}</strong>
+with st.expander("Service diagnostics", expanded=False):
+    st.markdown(
+        f"""
+        <div class="telemetry-strip">
+            <div class="metric-chip">
+                <span class="status-dot {dot_class}"></span>
+                Backend: <strong>{backend_label}</strong>
+            </div>
+            <div class="metric-chip">
+                Retriever: <strong>{escape(retriever_name.upper())}</strong>
+            </div>
+            <div class="metric-chip">
+                Index Hash: <strong>{escape(index_ver[:8])}</strong>
+            </div>
+            <div class="metric-chip">
+                Corpus: <strong>{doc_count} Verified Documents</strong>
+            </div>
+            <div class="metric-chip">
+                Drift Status: <strong style="color: {drift_color};">{drift_label}</strong>
+            </div>
         </div>
-        <div class="metric-chip">
-            Retriever: <strong>{retriever_name.upper()}</strong>
-        </div>
-        <div class="metric-chip">
-            Index Hash: <strong>{index_ver[:8]}</strong>
-        </div>
-        <div class="metric-chip">
-            Corpus: <strong>{doc_count} Verified Documents</strong>
-        </div>
-        <div class="metric-chip">
-            Drift Status: <strong style="color: {drift_color};">{drift_label}</strong>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 # ----------------- Interactive Prompt Command Palette -----------------
-with st.container():
+with st.expander("Suggested policy questions", expanded=not st.session_state.history):
     st.markdown(
         """
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
@@ -165,12 +167,11 @@ with st.container():
         unsafe_allow_html=True,
     )
 
-    tab_hr, tab_it, tab_fin, tab_onb, tab_safe = st.tabs([
+    tab_hr, tab_it, tab_fin, tab_onb = st.tabs([
         "HR & Leaves",
         "IT & VPN",
         "Finance & Expenses",
         "Onboarding",
-        "Safety & Refusal Tests",
     ])
 
     with tab_hr:
@@ -203,14 +204,6 @@ with st.container():
         if c2.button("📋 What training must a new joiner complete?", use_container_width=True):
             st.session_state.pending_prompt = "What training must a new joiner complete?"
 
-    with tab_safe:
-        c1, c2, c3 = st.columns(3)
-        if c1.button("🍕 Recommend a good pizza recipe (Out of Domain)", use_container_width=True):
-            st.session_state.pending_prompt = "Recommend a good pizza recipe"
-        if c2.button("🏏 Who won the cricket world cup? (Hallucination Test)", use_container_width=True):
-            st.session_state.pending_prompt = "Who won the cricket world cup?"
-        if c3.button("🏛️ What is the capital of Australia?", use_container_width=True):
-            st.session_state.pending_prompt = "What is the capital of Australia?"
 
 
 # ----------------- Query Execution Pipeline -----------------
@@ -232,6 +225,10 @@ if chat_input:
 elif st.session_state.pending_prompt:
     active_query = st.session_state.pending_prompt
     st.session_state.pending_prompt = None
+
+if active_query and not 3 <= len(active_query.strip()) <= 500:
+    st.warning("Enter a question between 3 and 500 characters.")
+    active_query = None
 
 if active_query:
     with st.spinner("Executing similarity scan & verifying groundedness..."):
@@ -302,11 +299,11 @@ for idx, item in enumerate(st.session_state.history):
                     ▶ Employee Policy Query
                 </span>
                 <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #64748b;">
-                    {ts}
+                    {escape(ts)}
                 </span>
             </div>
             <div style="font-size: 1.08rem; font-weight: 600; color: #f8fafc;">
-                {q}
+                {escape(q)}
             </div>
         </div>
         """,
@@ -316,7 +313,7 @@ for idx, item in enumerate(st.session_state.history):
     # 2. Assistant Answer Card
     primary_source = sources[0].get("source", "verified policy") if sources else "verified policy"
     if answered and groundedness >= 0.80:
-        shield_html = f"""<span class="badge-verified">✓ 100% Grounded in {primary_source}</span>"""
+        shield_html = f"""<span class="badge-verified">✓ Groundedness: {groundedness:.0%} · {escape(str(primary_source))}</span>"""
     elif answered:
         shield_html = f"""<span class="badge-warning">⚠ Partial Grounding ({groundedness:.0%})</span>"""
     else:
@@ -335,11 +332,11 @@ for idx, item in enumerate(st.session_state.history):
                             color: #94a3b8; display: flex; gap: 0.85rem;">
                     <span>⏱ {latency_ms:.1f}ms</span>
                     <span>Relevance: {top_score:.3f}</span>
-                    <span style="color: #c084fc;">{prompt_ver}</span>
+                    <span style="color: #c084fc;">{escape(str(prompt_ver))}</span>
                 </div>
             </div>
             <div style="font-size: 1.06rem; line-height: 1.65; color: #f8fafc;">
-                {answer_text}
+                {escape(str(answer_text))}
             </div>
         </div>
         """,
@@ -364,7 +361,7 @@ for idx, item in enumerate(st.session_state.history):
                     <div class="chunk-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                             <span style="font-weight: 700; color: #c084fc; font-size: 0.9rem;">
-                                📄 {src_name} <span style="color: #64748b; font-size: 0.78rem;">(version {doc_ver})</span>
+                                📄 {escape(str(src_name))} <span style="color: #64748b; font-size: 0.78rem;">(version {escape(str(doc_ver))})</span>
                             </span>
                             <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #34d399;">
                                 Cosine Score: {score:.3f} ({score_pct:.0f}%)
@@ -375,7 +372,7 @@ for idx, item in enumerate(st.session_state.history):
                             <div style="background: {bar_color}; width: {score_pct}%; height: 100%; border-radius: 2px;"></div>
                         </div>
                         <div style="color: #cbd5e1; font-size: 0.92rem; font-style: italic; line-height: 1.5;">
-                            "{s.get('snippet', '')}"
+                            "{escape(str(s.get('snippet', '')))}"
                         </div>
                     </div>
                     """,
@@ -384,28 +381,30 @@ for idx, item in enumerate(st.session_state.history):
 
     # 4. Action Bar (Feedback & LIME XAI)
     c_fb1, c_fb2, c_lime, _ = st.columns([0.75, 0.75, 2.5, 4.5])
+    voted = item.get("feedback") is not None
     with c_fb1:
-        if st.button("👍 Helpful", key=f"up_{idx}"):
+        if st.button("👍 Helpful", key=f"up_{idx}", disabled=voted) and not voted:
             try:
                 requests.post(f"{API}/feedback", json={"helpful": True}, timeout=5)
+                item["feedback"] = True
                 st.session_state.positive_feedback += 1
-                render_confetti()
-                st.toast("Feedback recorded: Helpful", icon="✅")
+                st.rerun()
             except Exception:
                 st.toast("Failed to log feedback")
     with c_fb2:
-        if st.button("👎 Poor", key=f"down_{idx}"):
+        if st.button("👎 Poor", key=f"down_{idx}", disabled=voted) and not voted:
             try:
                 requests.post(f"{API}/feedback", json={"helpful": False}, timeout=5)
+                item["feedback"] = False
                 st.session_state.negative_feedback += 1
-                st.toast("Feedback recorded: Flagged for review", icon="⚠️")
+                st.rerun()
             except Exception:
                 st.toast("Failed to log feedback")
     with c_lime:
         show_lime = st.button("🔍 Explain Query Influence (LIME)", key=f"lime_btn_{idx}")
 
     # LIME Explanation Display
-    cache_key = f"lime_{q}"
+    cache_key = f"lime_{index_ver}_{q}"
     if show_lime or cache_key in st.session_state.lime_cache:
         with st.spinner("Fitting local LIME surrogate model..."):
             if cache_key not in st.session_state.lime_cache:
@@ -519,6 +518,8 @@ with st.sidebar:
 
     if st.button("🧹 Clear Conversation History", use_container_width=True):
         st.session_state.history = []
+        st.session_state.positive_feedback = 0
+        st.session_state.negative_feedback = 0
         st.session_state.total_queries = 0
         st.session_state.latencies = []
         st.session_state.lime_cache = {}
@@ -529,7 +530,7 @@ with st.sidebar:
         """
         <div style="font-size: 0.75rem; color: #64748b; text-align: center; font-family: 'JetBrains Mono', monospace;">
             RAG·OPS ENTERPRISE EDITION<br>
-            <span style="color: #10b981;">● AIR-GAPPED VERIFICATION</span>
+            <span style="color: #10b981;">● DOCUMENT-BASED ANSWERS</span>
         </div>
         """,
         unsafe_allow_html=True,

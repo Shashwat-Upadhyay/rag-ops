@@ -30,9 +30,10 @@ def test_input_validation():
     assert client.post("/ask", json={}).status_code == 422
 
 
-def test_hr_endpoints_need_token():
+def test_hr_endpoints_need_token(monkeypatch):
+    monkeypatch.setattr("api.main.HR_TOKEN", "test-admin-token")
     assert client.get("/admin/documents").status_code == 401
-    assert client.get("/admin/documents", headers={"X-HR-Token": "hr-demo"}).status_code == 200
+    assert client.get("/admin/documents", headers={"X-HR-Token": "test-admin-token"}).status_code == 200
 
 
 def test_metrics_endpoint():

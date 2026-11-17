@@ -2,19 +2,17 @@
 A distinctive, high-end frontier interface combining executive elegance with
 tactile micro-interactions, animated telemetry, and real-time observability.
 """
-import os
-import sys
+import json
+from html import escape
 
 import streamlit as st
 import streamlit.components.v1 as components
 
-# Ensure local packages site-packages is on sys.path
-_LOCAL_CACHE = (
-    r"C:\Users\HP\AppData\Local\Packages"
-    r"\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages"
-)
-if os.path.exists(_LOCAL_CACHE) and _LOCAL_CACHE not in sys.path:
-    sys.path.append(_LOCAL_CACHE)
+
+
+def script_literal(value):
+    """Serialize text safely for an inline script."""
+    return json.dumps(str(value)).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
 
 
 def inject_executive_theme():
@@ -22,7 +20,6 @@ def inject_executive_theme():
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap');
 
         /* ── Aurora Command Design Tokens ───────────────────────────────── */
         :root {
@@ -331,6 +328,14 @@ def inject_executive_theme():
         ::-webkit-scrollbar-thumb:hover {
             background: #7c3aed;
         }
+        @media (max-width: 768px) {
+            .telemetry-strip { flex-wrap: wrap; }
+            .msg-query, .msg-answer, .aurora-card { padding: 1rem; }
+            h1 { font-size: 1.7rem !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -339,7 +344,7 @@ def inject_executive_theme():
 
 def render_audio_briefing(text: str, element_id: str):
     """Renders a sleek voice briefing player with dynamic waveform equalizer."""
-    escaped = text.replace("'", "\\'").replace('"', '\\"').replace("\n", " ")
+    escaped = script_literal(text)
     components.html(
         f"""
         <style>
@@ -390,7 +395,10 @@ def render_audio_briefing(text: str, element_id: str):
         </div>
         <script>
             function toggleVoice(id) {{
-                if (!('speechSynthesis' in window)) return;
+                if (!('speechSynthesis' in window)) {{
+                    document.getElementById('label-' + id).innerText = 'Speech unavailable in this browser';
+                    return;
+                }}
                 const btn = document.getElementById('btn-' + id);
                 const icon = document.getElementById('icon-' + id);
                 const label = document.getElementById('label-' + id);
@@ -406,7 +414,7 @@ def render_audio_briefing(text: str, element_id: str):
                     return;
                 }}
 
-                const u = new SpeechSynthesisUtterance("{escaped}");
+                const u = new SpeechSynthesisUtterance({escaped});
                 u.rate = 1.0;
                 u.pitch = 1.0;
                 const voices = window.speechSynthesis.getVoices();
@@ -419,7 +427,7 @@ def render_audio_briefing(text: str, element_id: str):
                 u.onstart = () => {{
                     icon.innerText = '⏸';
                     icon.style.color = '#ff4d6d';
-                    label.innerText = 'Playing Audio Briefing... (Click to Pause)';
+                    label.innerText = 'Playing Audio Briefing... (Click to Stop)';
                     wave.style.display = 'flex';
                     wave.classList.add('active-wave');
                 }};
@@ -445,7 +453,7 @@ def render_token_influence_heatmap(terms: list[dict]):
 
     chips_html = []
     for t in terms:
-        word = t.get("term", "")
+        word = escape(str(t.get("term", "")))
         weight = float(t.get("weight", 0.0))
         is_pos = weight >= 0
         bg = "rgba(16, 185, 129, 0.14)" if is_pos else "rgba(255, 77, 109, 0.14)"
@@ -491,23 +499,8 @@ def render_token_influence_heatmap(terms: list[dict]):
 
 
 def render_confetti():
-    """Subtle celebration particle feedback."""
-    components.html(
-        """
-        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-        <script>
-            if (window.confetti) {
-                confetti({
-                    particleCount: 50,
-                    spread: 70,
-                    origin: { y: 0.65 },
-                    colors: ['#7c3aed', '#00d4ff', '#ff4d6d', '#10b981']
-                });
-            }
-        </script>
-        """,
-        height=0,
-    )
+    """Celebrate using bundled Streamlit assets."""
+    st.balloons()
 
 
 def render_animated_metric(
@@ -543,28 +536,26 @@ def render_animated_metric(
         js_counter = f"""
         let start = 0;
         const target = {target_num};
-        const duration = 900;
+        const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 900;
         const startTime = performance.now();
         function update(currentTime) {{
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             const ease = 1 - Math.pow(1 - progress, 3);
             const current = (target * ease).toFixed({precision});
-            document.getElementById('metric-val').innerText = current + '{suffix}';
+            document.getElementById('metric-val').innerText = current + {script_literal(suffix)};
             if (progress < 1) requestAnimationFrame(update);
         }}
         requestAnimationFrame(update);
         """
     else:
-        js_counter = f"document.getElementById('metric-val').innerText = '{value}';"
+        js_counter = f"document.getElementById('metric-val').innerText = {script_literal(value)};"
 
     html_content = f"""
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="utf-8">
-      <link rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600&family=Space+Grotesk:wght@500;600&family=Syne:wght@800&display=swap">
       <style>
         body {{
           margin: 0;
@@ -605,8 +596,8 @@ def render_animated_metric(
     </head>
     <body>
       <div class="card">
-        <div class="label">{label}</div>
-        <div class="value" id="metric-val">{value}</div>
+        <div class="label">{escape(str(label))}</div>
+        <div class="value" id="metric-val">{escape(str(value))}</div>
       </div>
       <script>
         {js_counter}
@@ -627,8 +618,6 @@ def render_status_ring(is_online: bool):
         <html>
         <head>
           <meta charset="utf-8">
-          <link rel="stylesheet"
-                href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap">
           <style>
             body {{
               margin: 0;
@@ -683,6 +672,9 @@ def render_status_ring(is_online: bool):
               color: {color};
               letter-spacing: 0.08em;
             }}
+            @media (prefers-reduced-motion: reduce) {{
+              *, *::before, *::after {{ animation: none !important; transition: none !important; }}
+            }}
           </style>
         </head>
         <body>
@@ -701,179 +693,8 @@ def render_status_ring(is_online: bool):
 
 
 def render_mermaid_diagram(code: str, height: int = 560):
-    """Renders a graphical Mermaid.js diagram with interactive drag-to-pan & zoom controls."""
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <link rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600&family=Space+Grotesk:wght@600&family=Syne:wght@700&display=swap">
-      <style>
-        body {{
-          margin: 0;
-          padding: 0;
-          background: #09090f;
-          color: #f8fafc;
-          font-family: 'Space Grotesk', sans-serif;
-          box-sizing: border-box;
-          border: 1px solid rgba(124, 58, 237, 0.25);
-          border-radius: 14px;
-          overflow: hidden;
-          position: relative;
-          height: {height}px;
-          user-select: none;
-        }}
-        .toolbar {{
-          position: absolute;
-          top: 12px;
-          right: 14px;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          z-index: 100;
-          background: rgba(15, 15, 24, 0.92);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 8px;
-          padding: 4px 8px;
-          backdrop-filter: blur(10px);
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        }}
-        .toolbar button {{
-          background: #141422;
-          color: #e2e8f0;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 6px;
-          padding: 4px 10px;
-          font-size: 0.78rem;
-          font-weight: 600;
-          cursor: pointer;
-          font-family: 'JetBrains Mono', monospace;
-          transition: all 0.15s ease;
-        }}
-        .toolbar button:hover {{
-          background: #7c3aed;
-          color: #ffffff;
-          border-color: #7c3aed;
-          box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
-        }}
-        #viewport {{
-          width: 100%;
-          height: 100%;
-          cursor: grab;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          overflow: hidden;
-        }}
-        #viewport:active {{
-          cursor: grabbing;
-        }}
-        #container {{
-          transform-origin: center center;
-          transition: transform 0.05s ease-out;
-          width: 100%;
-          display: flex;
-          justify-content: center;
-        }}
-        .mermaid {{
-          width: 95%;
-          display: flex;
-          justify-content: center;
-        }}
-        .mermaid svg {{
-          max-width: 100% !important;
-          height: auto !important;
-        }}
-      </style>
-      <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-      <script>
-        mermaid.initialize({{
-          startOnLoad: true,
-          theme: 'dark',
-          themeVariables: {{
-            darkMode: true,
-            background: '#09090f',
-            mainBkg: '#12121c',
-            nodeBorder: '#3b3b54',
-            clusterBkg: '#0d0d16',
-            clusterBorder: '#27273a',
-            titleColor: '#e2e8f0',
-            textColor: '#f8fafc',
-            lineColor: '#00d4ff',
-            fontFamily: 'Space Grotesk, sans-serif',
-            fontSize: '12px'
-          }}
-        }});
-
-        let scale = 1.0;
-        let pointX = 0;
-        let pointY = 0;
-        let start = {{ x: 0, y: 0 }};
-        let isPanning = false;
-
-        function updateTransform() {{
-          const container = document.getElementById('container');
-          container.style.transform = `translate(${{pointX}}px, ${{pointY}}px) scale(${{scale}})`;
-        }}
-
-        function zoom(delta) {{
-          scale = Math.min(Math.max(0.4, scale + delta), 2.5);
-          updateTransform();
-        }}
-
-        function resetView() {{
-          scale = 1.0;
-          pointX = 0;
-          pointY = 0;
-          updateTransform();
-        }}
-
-        window.addEventListener('DOMContentLoaded', () => {{
-          const viewport = document.getElementById('viewport');
-
-          viewport.addEventListener('mousedown', (e) => {{
-            if (e.target.closest('.toolbar')) return;
-            isPanning = true;
-            start = {{ x: e.clientX - pointX, y: e.clientY - pointY }};
-          }});
-
-          window.addEventListener('mousemove', (e) => {{
-            if (!isPanning) return;
-            pointX = e.clientX - start.x;
-            pointY = e.clientY - start.y;
-            updateTransform();
-          }});
-
-          window.addEventListener('mouseup', () => {{
-            isPanning = false;
-          }});
-
-          viewport.addEventListener('wheel', (e) => {{
-            e.preventDefault();
-            const delta = e.deltaY < 0 ? 0.08 : -0.08;
-            zoom(delta);
-          }}, {{ passive: false }});
-        }});
-      </script>
-    </head>
-    <body>
-      <div class="toolbar">
-        <button onclick="zoom(0.15)">＋ Zoom In</button>
-        <button onclick="zoom(-0.15)">－ Zoom Out</button>
-        <button onclick="resetView()">↺ Reset</button>
-        <span style="font-size: 0.72rem; color: #94a3b8; padding: 2px 6px; font-family: 'JetBrains Mono';">
-          Pan & Wheel Zoom
-        </span>
-      </div>
-      <div id="viewport">
-        <div id="container">
-          <div class="mermaid">
-            {code}
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-    """
-    components.html(html_content, height=height + 20)
+    """Render an architecture overview without external scripts."""
+    st.markdown("**Documents → Validation → Chunking → Retrieval index → Quality gate → API → Assistant**")
+    st.caption("Queries feed audit logs and drift monitoring; retraining evaluates a candidate index before promotion.")
+    with st.expander("Inspect architecture diagram source"):
+        st.code(code, language="mermaid")

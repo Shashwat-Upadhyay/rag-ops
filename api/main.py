@@ -1,8 +1,10 @@
 """FastAPI backend: employee Q&A + HR document management + health + Prometheus metrics."""
 import os
+import secrets
 import time
 from pathlib import Path
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, File, Header, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from prometheus_client import make_asgi_app
@@ -16,10 +18,14 @@ from ragops.explain import explain_query
 from ragops.service import RagService
 from ragops.utils import read_json
 
+# Use the project configuration for local launches as well as Docker.
+# Explicit process environment values retain precedence.
+load_dotenv(Path(__file__).resolve().parents[1] / ".env", override=False)
+
 app = FastAPI(title="RAGOps Knowledge Assistant", version="0.1.0")
 app.mount("/metrics", make_asgi_app())
 svc = RagService()
-HR_TOKEN = os.getenv("HR_TOKEN", "hr-demo")
+HR_TOKEN = os.getenv("HR_TOKEN")
 
 
 class Question(BaseModel):
@@ -36,7 +42,9 @@ def _track(endpoint: str, start: float, status: str):
 
 
 def _require_hr(token: str | None):
-    if token != HR_TOKEN:
+    if not HR_TOKEN:
+        raise HTTPException(503, "Administrator access is not configured. Set HR_TOKEN on the API server.")
+    if not token or not secrets.compare_digest(token, HR_TOKEN):
         raise HTTPException(401, "Invalid HR token")
 
 
