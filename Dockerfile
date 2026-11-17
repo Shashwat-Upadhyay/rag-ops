@@ -10,4 +10,4 @@ COPY frontend ./frontend
 COPY configs ./configs
 COPY data/eval ./data/eval
 EXPOSE 8000
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "streamlit run run_ui.py --server.address 0.0.0.0 --server.port ${PORT:-8000}"]
